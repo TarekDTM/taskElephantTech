@@ -20,20 +20,9 @@ class WeatherForm extends Component {
             showSpinner:false,
             showError:false
     };
-    // this.getLocation = this.getLocation.bind(this);
-    // this.getCoordinates = this.getCoordinates.bind(this);
+   
     }
-    // getLocation(){
-    //     if(navigator.geolocation){
-    //         navigator.geolocation.getCurrentPosition(this.getCoordinates);
-    //     }alert("Enable location")
-    // }
-    // getCoordinates(position){
-    //     this.setState({
-    //         lat: position.coords.latitude === undefined ?30.0444 :position.coords.latitude,
-    //         lon: position.coords.longitude === undefined ?31.2357:position.coords.longitude
-    //      }) 
-    // }
+
     componentDidMount() {
         navigator.geolocation.getCurrentPosition((position) => {
             this.setState({
@@ -85,14 +74,13 @@ class WeatherForm extends Component {
     
 }
 
-    //passes date in time stamp form to the state 
+    //passes date as timestamp to the state 
     passDate(event){
       let time =  new Date(event.target.value);
       let epoch = time.getTime()/1000;
       this.setState({
           date:epoch,
       })
-      console.log(this.state.date)
   
     }   
     
@@ -100,6 +88,7 @@ class WeatherForm extends Component {
     
     
     render() { 
+        //weater conditional 
         let weather = null
         if (this.state.request_complete){
          weather = <ShowWeather 
@@ -109,11 +98,12 @@ class WeatherForm extends Component {
             className={classes.main}
             />
         }
+        // error conditional 
         let error = null
         if(this.state.showError === true ){
-        error = <p>Please enter a date within five days</p>
+        error = <p>Please enter a date within the past five days</p>
         }
-        
+        //spinner conditional 
        let  spinner=null
         if(this.state.showSpinner){
             spinner = <BounceLoader className={classes.main}/>
@@ -123,7 +113,7 @@ class WeatherForm extends Component {
             <div className={classes.main} >
                 <div>
                 <h1 >Get Weather history for your location</h1>
-                <p className={classes.grey}>please allow location in order to get accurate weather condition data</p>
+                <p className={classes.white}>Please allow location in order to get accurate weather condition data</p>
                 </div>
                 <form className={classes.main}>
                     <input type="date" onChange={(event) => this.passDate(event)} />
