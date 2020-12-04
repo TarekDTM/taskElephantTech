@@ -7,7 +7,9 @@ import axios from 'axios'
 import ShowWeather from '../ShowWeather/ShowWeather'
 // import Button from '../Button/Button'
 class WeatherForm extends Component {
-    state = {
+    constructor(props){
+        super(props);
+        this.state = {
             lat:null,
             lon:1,
             date:null,
@@ -17,32 +19,31 @@ class WeatherForm extends Component {
             request_complete:false,
             showSpinner:false,
             showError:false
+    };
+    this.getLocation = this.getLocation.bind(this);
     }
-    constructor (props){
-        super(props)
-        this.state = {
-            date: new Date()
-        }
+    getLocation(){
+        if(navigator.geolocation){
+            navigator.geolocation.getCurrentPosition(this.getCoordinates);
+        }alert("Geolocation is not supported by this browser")
+    }
+    getCoordinates(position){
+        this.setState({
+            lat: position.coords.latitude === undefined ?30.0444 :position.coords.latitude,
+            lon: position.coords.longitude === undefined ?31.2357:position.coords.longitude
+         }) 
     }
 
-    componentDidMount() {
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-             this.setState({
-                lat: position.coords.latitude === undefined ?30.0444 :position.coords.latitude,
-                lon: position.coords.longitude === undefined ?31.2357:position.coords.longitude
-             }) 
 
-          },
-          (error) => {
-            console.error("Error Code = " + error.code + " - " + error.message);
-          }
-        );
-      }
+    
+
+
+    
     // calls weather data
     getWeatherHandler(){
-        if ( this.state.showError === false)
-        {
+        this.setState({
+            request_complete:false
+        })
         axios.get('http://localhost:3000/weather',{
             params:{
                 lat : this.state.lat,
@@ -51,6 +52,7 @@ class WeatherForm extends Component {
             }
          
         }).then(response => {
+           
             this.setState({
                 temp:response.data.current.temp, 
                 feelsLike:response.data.current.feels_like,
@@ -59,37 +61,30 @@ class WeatherForm extends Component {
                 showSpinner:false
 
             })
+ 
+        }).catch(()=>{
+            this.setState({
+                showError:true,
+                showSpinner:false
+            
+            })
         })
         this.setState({
             showSpinner:true
         })
      
         
-    }
+    
 }
 
     //passes date in time stamp form to the state 
     passDate(event){
-      let currentTime = new Date();
-      let epochCurrentTime = currentTime.getTime()/1000
       let time =  new Date(event.target.value);
-      let epoch = time.getTime()/1000
-      if (epochCurrentTime-epoch > 432000 ){
-            this.setState({
-                showError:true
-            })
-      } 
-      if ( epochCurrentTime-epoch < 0 ) {
-        console.log('nothing')
-        this.setState({
-            showError:true
-          
-        })
-      }
+      let epoch = time.getTime()/1000;
       this.setState({
           date:epoch,
-          showError:false
       })
+  
     }   
     
     
