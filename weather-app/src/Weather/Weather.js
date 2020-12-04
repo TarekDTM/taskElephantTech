@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import classes from './Weather.module.css'
-import DatePicker from "react-datepicker";
+// import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import {BounceLoader} from 'react-spinners'
 import axios from 'axios'
@@ -10,12 +10,19 @@ class WeatherForm extends Component {
     state = {
             lat:null,
             lon:1,
-            date:1607019537,
+            date:null,
             temp:null,
             feelsLike:null,
             humidity:null,
             request_complete:false,
-            showSpinner:false
+            showSpinner:false,
+            showError:false
+    }
+    constructor (props){
+        super(props)
+        this.state = {
+            date: new Date()
+        }
     }
 
     componentDidMount() {
@@ -34,7 +41,8 @@ class WeatherForm extends Component {
       }
     // calls weather data
     getWeatherHandler(){
-        try{
+        if ( this.state.showError === false)
+        {
         axios.get('http://localhost:3000/weather',{
             params:{
                 lat : this.state.lat,
@@ -55,20 +63,39 @@ class WeatherForm extends Component {
         this.setState({
             showSpinner:true
         })
-        }catch(error){
-            console.log(error)
-        }
+     
         
     }
+}
 
     //passes date in time stamp form to the state 
     passDate(event){
-      let time =  new Date(event);
+      let currentTime = new Date();
+      let epochCurrentTime = currentTime.getTime()/1000
+      let time =  new Date(event.target.value);
       let epoch = time.getTime()/1000
+      if (epochCurrentTime-epoch > 432000 ){
+            this.setState({
+                showError:true
+            })
+      } 
+      if ( epochCurrentTime-epoch < 0 ) {
+        console.log('nothing')
+        this.setState({
+            showError:true
+          
+        })
+      }
       this.setState({
-          date:epoch
+          date:epoch,
+          showError:false
       })
-    }    render() { 
+    }   
+    
+    
+    
+    
+    render() { 
         let weather = null
         if (this.state.request_complete){
          weather = <ShowWeather 
@@ -78,6 +105,11 @@ class WeatherForm extends Component {
             className={classes.main}
             />
         }
+        let error = null
+        if(this.state.showError === true ){
+        error = <p>Please enter a date within five days</p>
+        }
+        
        let  spinner=null
         if(this.state.showSpinner){
             spinner = <BounceLoader className={classes.main}/>
@@ -90,9 +122,10 @@ class WeatherForm extends Component {
                 <p className={classes.grey}>please allow location in order to get accurate weather condition data</p>
                 </div>
                 <form className={classes.main}>
-                    <DatePicker onChange={(event) => this.passDate(event)} />
+                    <input type="date" onChange={(event) => this.passDate(event)} />
                 <div className={classes.Button} onClick={this.getWeatherHandler.bind(this)}>Get Weather</div>
                 </form>
+                {error}
                 {spinner}
                 {weather}
             </div>
