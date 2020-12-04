@@ -20,29 +20,37 @@ class WeatherForm extends Component {
             showSpinner:false,
             showError:false
     };
-    this.getLocation = this.getLocation.bind(this);
+    // this.getLocation = this.getLocation.bind(this);
+    // this.getCoordinates = this.getCoordinates.bind(this);
     }
-    getLocation(){
-        if(navigator.geolocation){
-            navigator.geolocation.getCurrentPosition(this.getCoordinates);
-        }alert("Geolocation is not supported by this browser")
-    }
-    getCoordinates(position){
-        this.setState({
-            lat: position.coords.latitude === undefined ?30.0444 :position.coords.latitude,
-            lon: position.coords.longitude === undefined ?31.2357:position.coords.longitude
-         }) 
-    }
-
-
-    
+    // getLocation(){
+    //     if(navigator.geolocation){
+    //         navigator.geolocation.getCurrentPosition(this.getCoordinates);
+    //     }alert("Enable location")
+    // }
+    // getCoordinates(position){
+    //     this.setState({
+    //         lat: position.coords.latitude === undefined ?30.0444 :position.coords.latitude,
+    //         lon: position.coords.longitude === undefined ?31.2357:position.coords.longitude
+    //      }) 
+    // }
+    componentDidMount() {
+        navigator.geolocation.getCurrentPosition((position) => {
+            this.setState({
+                lat: position.coords.latitude === undefined ?30.0444 :position.coords.latitude,
+                lon: position.coords.longitude === undefined ?31.2357:position.coords.longitude
+             }) 
+         
+        });
+      }
 
 
     
     // calls weather data
     getWeatherHandler(){
         this.setState({
-            request_complete:false
+            request_complete:false,
+            showError:false,
         })
         axios.get('http://localhost:3000/weather',{
             params:{
@@ -84,6 +92,7 @@ class WeatherForm extends Component {
       this.setState({
           date:epoch,
       })
+      console.log(this.state.date)
   
     }   
     
